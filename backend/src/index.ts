@@ -2,6 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import resumeRoutes from './routes/resume.routes';
+import analysisRoutes from './routes/analysis.routes';
+import jobRoutes from './routes/job.routes';
+import reportRoutes from './routes/report.routes';
+import analyticsRoutes from './routes/analytics.routes';
 
 const app = express();
 
@@ -13,6 +18,11 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/resumes', resumeRoutes);
+app.use('/analysis', analysisRoutes);
+app.use('/jobs', jobRoutes);
+app.use('/reports', reportRoutes);
+app.use('/analytics', analyticsRoutes);
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3001;
