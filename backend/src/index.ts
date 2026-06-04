@@ -11,14 +11,30 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, vercel: !!process.env.VERCEL, node: process.version });
 });
 
+function imp(path: string, mountPoint: string) {
+  return Promise.race([
+    import(path).then(m => { if (m?.default) app.use(mountPoint, m.default); return 'ok'; }),
+    new Promise<string>((_, reject) => setTimeout(() => reject(new Error(`TIMEOUT importing ${path}`)), 8000))
+  ]);
+}
+
 async function initModules() {
   await syncSchema();
-  try { const m: any = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); console.log('✓ auth'); } catch (e: any) { console.error('✗ auth:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
-  try { const m: any = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); console.log('✓ resume'); } catch (e: any) { console.error('✗ resume:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
-  try { const m: any = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); console.log('✓ analysis'); } catch (e: any) { console.error('✗ analysis:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
-  try { const m: any = await import('./routes/job.routes.js'); if (m?.default) app.use('/jobs', m.default); console.log('✓ job'); } catch (e: any) { console.error('✗ job:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
-  try { const m: any = await import('./routes/report.routes.js'); if (m?.default) app.use('/reports', m.default); console.log('✓ report'); } catch (e: any) { console.error('✗ report:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
-  try { const m: any = await import('./routes/analytics.routes.js'); if (m?.default) app.use('/analytics', m.default); console.log('✓ analytics'); } catch (e: any) { console.error('✗ analytics:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
+  for (const [path, mount] of [
+    ['./routes/auth.routes.js', '/auth'],
+    ['./routes/resume.routes.js', '/resumes'],
+    ['./routes/analysis.routes.js', '/analysis'],
+    ['./routes/job.routes.js', '/jobs'],
+    ['./routes/report.routes.js', '/reports'],
+    ['./routes/analytics.routes.js', '/analytics'],
+  ]) {
+    try {
+      const r = await imp(path, mount);
+      console.log(`✓ ${mount}`);
+    } catch (e: any) {
+      console.error(`✗ ${mount}:`, e?.message);
+    }
+  }
 }
 
 let initPromise: Promise<void> | null = initModules().catch(e => console.error('initModules:', e.message));
