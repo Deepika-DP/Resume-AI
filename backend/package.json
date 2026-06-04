@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "npx tsx watch src/index.ts",
     "start": "npx tsx src/index.ts",
-    "build": "npx prisma generate",
-    "postinstall": "npx prisma generate || echo 'prisma generate skipped (build env)'",
+    "postinstall": "npx prisma generate 2>&1 || echo 'prisma generate skipped'",
     "db:push": "npx prisma db push",
     "db:seed": "npx prisma db seed",
     "db:reset": "npx prisma db push --force-reset && npx prisma db seed",
