@@ -7,56 +7,37 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (_req, res) => {
-  let requireWorks = false;
-  let resolveResult = '';
-  let errorMsg = '';
-  try {
-    const resolved = require.resolve('./routes/auth.routes.js');
-    resolveResult = resolved;
-    requireWorks = true;
-  } catch (e: any) {
-    errorMsg = e.message;
-  }
-  res.json({
-    ok: true,
-    vercel: !!process.env.VERCEL,
-    node: process.version,
-    requireWorks,
-    resolveResult,
-    errorMsg,
-    cwd: process.cwd(),
-    __dirname
-  });
+  res.json({ ok: true, vercel: !!process.env.VERCEL, node: process.version });
 });
 
-app.get('/init', async (_req, res) => {
-  const results: any[] = [];
-  const modules = [
-    'auth',
-    'resume',
-    'analysis',
-    'job',
-    'report',
-    'analytics'
+async function initModules() {
+  const modules: [string, string][] = [
+    ['/auth', './routes/auth.routes.js'],
+    ['/resumes', './routes/resume.routes.js'],
+    ['/analysis', './routes/analysis.routes.js'],
+    ['/jobs', './routes/job.routes.js'],
+    ['/reports', './routes/report.routes.js'],
+    ['/analytics', './routes/analytics.routes.js'],
   ];
-  for (const name of modules) {
-    const path = `./routes/${name}.routes.js`;
+  for (const [path, specifier] of modules) {
     try {
-      const mod = require(path);
-      results.push({ name, loaded: true, hasDefault: !!mod.default });
+      const mod = await import(specifier);
+      app.use(path, mod.default || mod);
     } catch (e: any) {
-      results.push({ name, loaded: false, error: e.message });
+      console.error(`Failed to load ${specifier}: ${e.message}`);
     }
   }
-  res.json({ init: results });
-});
+}
 
-app.get('/test-static-import', async (_req, res) => {
-  try {
-    const mod = await import('./routes/auth.routes.js');
-    res.json({ ok: true, hasDefault: !!mod.default });
-  } catch (e: any) {
-    res.json({ ok: false, error: e.message, stack: e.stack?.split('\n').slice(0, 5).join('\n') });
+let initPromise = initModules().catch(e => console.error('initModules failed:', e));
+
+app.use((_req, _res, next) => {
+  if (initPromise) {
+    const p = initPromise;
+    initPromise = null;
+    p.then(() => next()).catch(() => next());
+  } else {
+    next();
   }
 });
 
