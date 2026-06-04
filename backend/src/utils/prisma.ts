@@ -32,7 +32,8 @@ export async function syncSchema() {
     if (cnt && Number(cnt) > 0) return;
   } catch {}
   try {
-    execSync('npx prisma db push --skip-generate --accept-data-loss', { stdio: 'pipe', cwd: path.resolve(__dirname, '../..'), timeout: 30000 });
+    const prismaCli = path.resolve(__dirname, '../../node_modules/prisma/build/index.js');
+    execSync(`node "${prismaCli}" db push --skip-generate --accept-data-loss`, { stdio: 'pipe', cwd: path.resolve(__dirname, '../..'), timeout: 30000 });
   } catch (e: any) {
     console.error('prisma db push failed:', e.message);
   }
