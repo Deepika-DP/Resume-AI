@@ -13,12 +13,12 @@ app.get('/health', (_req, res) => {
 
 async function initModules() {
   await syncSchema();
-  try { const m: any = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); } catch (e: any) { console.error('auth:', e.message); }
-  try { const m: any = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); } catch (e: any) { console.error('resume:', e.message); }
-  try { const m: any = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); } catch (e: any) { console.error('analysis:', e.message); }
-  try { const m: any = await import('./routes/job.routes.js'); if (m?.default) app.use('/jobs', m.default); } catch (e: any) { console.error('job:', e.message); }
-  try { const m: any = await import('./routes/report.routes.js'); if (m?.default) app.use('/reports', m.default); } catch (e: any) { console.error('report:', e.message); }
-  try { const m: any = await import('./routes/analytics.routes.js'); if (m?.default) app.use('/analytics', m.default); } catch (e: any) { console.error('analytics:', e.message); }
+  try { const m: any = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); console.log('✓ auth'); } catch (e: any) { console.error('✗ auth:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
+  try { const m: any = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); console.log('✓ resume'); } catch (e: any) { console.error('✗ resume:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
+  try { const m: any = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); console.log('✓ analysis'); } catch (e: any) { console.error('✗ analysis:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
+  try { const m: any = await import('./routes/job.routes.js'); if (m?.default) app.use('/jobs', m.default); console.log('✓ job'); } catch (e: any) { console.error('✗ job:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
+  try { const m: any = await import('./routes/report.routes.js'); if (m?.default) app.use('/reports', m.default); console.log('✓ report'); } catch (e: any) { console.error('✗ report:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
+  try { const m: any = await import('./routes/analytics.routes.js'); if (m?.default) app.use('/analytics', m.default); console.log('✓ analytics'); } catch (e: any) { console.error('✗ analytics:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | ')); }
 }
 
 let initPromise: Promise<void> | null = initModules().catch(e => console.error('initModules:', e.message));
