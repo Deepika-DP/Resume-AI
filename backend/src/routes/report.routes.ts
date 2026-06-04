@@ -7,7 +7,7 @@ import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 
 const router = Router();
 const prisma = new PrismaClient();
-const DOWNLOADS_DIR = path.resolve(__dirname, '../../downloads');
+const DOWNLOADS_DIR = process.env.VERCEL ? '/tmp/downloads' : path.resolve(__dirname, '../../downloads');
 
 if (!fs.existsSync(DOWNLOADS_DIR)) {
   fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });

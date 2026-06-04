@@ -1,0 +1,21 @@
+{
+  "installCommand": "cd frontend && npm install && cd ../backend && npm install",
+  "buildCommand": "cd backend && npx prisma generate && cd ../frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/auth/(.*)", "destination": "/api" },
+    { "source": "/resumes/(.*)", "destination": "/api" },
+    { "source": "/analysis/(.*)", "destination": "/api" },
+    { "source": "/jobs/(.*)", "destination": "/api" },
+    { "source": "/reports/(.*)", "destination": "/api" },
+    { "source": "/analytics/(.*)", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  }
+}

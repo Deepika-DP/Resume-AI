@@ -7,3 +7,5 @@ backend/downloads/
 .env.local
 dist/
 .vite/
+
+.vercel
