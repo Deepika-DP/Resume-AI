@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefi
 
 function createPrisma(): PrismaClient {
   if (process.env.VERCEL) {
-    const dbPath = process.env.DATABASE_URL?.replace('file:', '') || '/tmp/dev.db';
+    const dbPath = '/tmp/dev.db';
     const dir = path.dirname(dbPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -17,14 +17,14 @@ function createPrisma(): PrismaClient {
         execSync('npx prisma db push --skip-generate --accept-data-loss', {
           cwd: path.resolve(__dirname, '../..'),
           stdio: 'pipe',
-          env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL || `file:${dbPath}` }
+          env: { ...process.env, DATABASE_URL: `file:${dbPath}` }
         });
       } catch (e: any) {
         console.error('Prisma push failed:', e.stderr?.toString() || e.message);
       }
     }
   }
-  return new PrismaClient();
+  return new PrismaClient({ datasources: { db: { url: `file:${process.env.VERCEL ? '/tmp/dev.db' : path.resolve(__dirname, '../../prisma/dev.db')}` } } });
 }
 
 if (!globalForPrisma.prisma) {
