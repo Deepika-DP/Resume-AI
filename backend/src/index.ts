@@ -24,6 +24,10 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '1mb' }));
 
+app.get('/health', (_req, res) => {
+  res.json({ ok: true, env: { vercel: !!process.env.VERCEL, jwt: !!process.env.JWT_SECRET } });
+});
+
 app.use('/auth', authRoutes);
 app.use('/resumes', resumeRoutes);
 app.use('/analysis', analysisRoutes);

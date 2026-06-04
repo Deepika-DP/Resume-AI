@@ -6,9 +6,13 @@ import type { AuthRequest } from '../middleware/auth.middleware';
 import prisma from '../utils/prisma';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
 }
 
 router.post('/register', async (req, res) => {
@@ -28,7 +32,7 @@ router.post('/register', async (req, res) => {
     const user = await prisma.user.create({
       data: { name, email, passwordHash }
     });
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id }, getJwtSecret(), { expiresIn: '7d' });
     res.status(201).json({ user: { id: user.id, name: user.name, email: user.email }, token });
   } catch (error: any) {
     res.status(400).json({ error: error?.message || 'Registration failed' });
@@ -46,7 +50,7 @@ router.post('/login', async (req, res) => {
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id }, getJwtSecret(), { expiresIn: '7d' });
     res.json({ user: { id: user.id, name: user.name, email: user.email }, token });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
