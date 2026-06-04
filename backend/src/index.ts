@@ -7,6 +7,7 @@ import analysisRoutes from './routes/analysis.routes';
 import jobRoutes from './routes/job.routes';
 import reportRoutes from './routes/report.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import prisma from './utils/prisma';
 
 dotenv.config();
 
