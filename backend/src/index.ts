@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { syncSchema } from './utils/prisma.js';
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.get('/health', (_req, res) => {
 });
 
 async function initModules() {
+  await syncSchema();
   try { const m: any = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); } catch (e: any) { console.error('auth:', e.message); }
   try { const m: any = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); } catch (e: any) { console.error('resume:', e.message); }
   try { const m: any = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); } catch (e: any) { console.error('analysis:', e.message); }
