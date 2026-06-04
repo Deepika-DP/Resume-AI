@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import PDFDocument from 'pdfkit';
 import path from 'path';
 import fs from 'fs';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
+import prisma from '../utils/prisma';
 
-const router = Router();
-const prisma = new PrismaClient();
 const DOWNLOADS_DIR = process.env.VERCEL ? '/tmp/downloads' : path.resolve(__dirname, '../../downloads');
 
 if (!fs.existsSync(DOWNLOADS_DIR)) {

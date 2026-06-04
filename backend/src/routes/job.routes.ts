@@ -1,14 +1,10 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
-import fs from 'fs';
 import path from 'path';
-import mammoth from 'mammoth';
-const { PDFParse } = require('pdf-parse');
-import { tryOcrFallback } from '../utils/ocr';
+import fs from 'fs';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
+import prisma from '../utils/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 router.post('/', authMiddleware, async (req: AuthRequest, res) => {
   try {

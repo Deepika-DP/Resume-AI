@@ -1,11 +1,9 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import multer from 'multer';
 import path from 'path';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
+import prisma from '../utils/prisma';
 
-const router = Router();
-const prisma = new PrismaClient();
 const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.resolve(__dirname, '../../uploads');
 const upload = multer({
   dest: UPLOAD_DIR,
