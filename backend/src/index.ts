@@ -7,35 +7,58 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, vercel: !!process.env.VERCEL, node: process.version });
+  let requireWorks = false;
+  let resolveResult = '';
+  let errorMsg = '';
+  try {
+    const resolved = require.resolve('./routes/auth.routes');
+    resolveResult = resolved;
+    requireWorks = true;
+  } catch (e: any) {
+    errorMsg = e.message;
+  }
+  res.json({
+    ok: true,
+    vercel: !!process.env.VERCEL,
+    node: process.version,
+    requireWorks,
+    resolveResult,
+    errorMsg,
+    cwd: process.cwd(),
+    __dirname
+  });
 });
 
-function tryRequire(name: string, modulePath: string) {
-  try {
-    const mod = require(modulePath);
-    console.log(`  ✓ loaded ${name}`);
-    return mod.default || mod;
-  } catch (e: any) {
-    console.error(`  ✗ failed to load ${name}: ${e.message}`);
-    return null;
+app.get('/init', async (_req, res) => {
+  const results: any[] = [];
+  const modules = [
+    'auth',
+    'resume',
+    'analysis',
+    'job',
+    'report',
+    'analytics'
+  ];
+  for (const name of modules) {
+    const path = `./routes/${name}.routes`;
+    try {
+      const mod = require(path);
+      results.push({ name, loaded: true, hasDefault: !!mod.default });
+    } catch (e: any) {
+      results.push({ name, loaded: false, error: e.message });
+    }
   }
-}
+  res.json({ init: results });
+});
 
-console.log('[init] loading modules...');
-const authRoutes = tryRequire('auth', './routes/auth.routes');
-const resumeRoutes = tryRequire('resume', './routes/resume.routes');
-const analysisRoutes = tryRequire('analysis', './routes/analysis.routes');
-const jobRoutes = tryRequire('job', './routes/job.routes');
-const reportRoutes = tryRequire('report', './routes/report.routes');
-const analyticsRoutes = tryRequire('analytics', './routes/analytics.routes');
-
-if (authRoutes) { console.log('[init] mounting /auth'); app.use('/auth', authRoutes); }
-if (resumeRoutes) { console.log('[init] mounting /resumes'); app.use('/resumes', resumeRoutes); }
-if (analysisRoutes) { console.log('[init] mounting /analysis'); app.use('/analysis', analysisRoutes); }
-if (jobRoutes) { console.log('[init] mounting /jobs'); app.use('/jobs', jobRoutes); }
-if (reportRoutes) { console.log('[init] mounting /reports'); app.use('/reports', reportRoutes); }
-if (analyticsRoutes) { console.log('[init] mounting /analytics'); app.use('/analytics', analyticsRoutes); }
-console.log('[init] done');
+app.get('/test-static-import', async (_req, res) => {
+  try {
+    const mod = await import('./routes/auth.routes');
+    res.json({ ok: true, hasDefault: !!mod.default });
+  } catch (e: any) {
+    res.json({ ok: false, error: e.message, stack: e.stack?.split('\n').slice(0, 5).join('\n') });
+  }
+});
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3001;
