@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-100 font-sans antialiased;
+  }
+}
+
+[data-theme="light"] body,
+[data-theme="light"] .bg-slate-900 { background-color: #f1f5f9; }
+[data-theme="light"] .bg-slate-800 { background-color: #ffffff; }
+[data-theme="light"] .bg-slate-700 { background-color: #e2e8f0; }
+[data-theme="light"] { color-scheme: light; }
+[data-theme="light"] .text-slate-100 { color: #0f172a; }
+[data-theme="light"] .text-slate-400 { color: #475569; }
+[data-theme="light"] .text-slate-300 { color: #334155; }
+[data-theme="light"] .text-slate-400\/80 { color: #64748b; }
+[data-theme="light"] .border-slate-700 { border-color: #cbd5e1; }
+[data-theme="light"] .hover\:bg-slate-700:hover { background-color: #e2e8f0; }
+[data-theme="light"] .bg-rose-400\/10 { background-color: #fecaca; }
+[data-theme="light"] .bg-emerald-400\/10 { background-color: #bbf7d0; }
+[data-theme="light"] .bg-amber-400\/10 { background-color: #fde68a; }
+[data-theme="light"] .bg-blue-400\/10 { background-color: #bfdbfe; }

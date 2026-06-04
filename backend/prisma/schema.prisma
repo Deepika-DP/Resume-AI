@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  resumes      Resume[]
+}
+
+model Resume {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  fileName  String
+  fileUrl   String
+  score     Int?
+  riskLevel String?
+  createdAt DateTime  @default(now())
+  analyses  Analysis[]
+  reports   Report[]
+}
+
+model Job {
+  id          String    @id @default(uuid())
+  title       String
+  description String
+}
+
+model Analysis {
+  id                String   @id @default(uuid())
+  resumeId          String
+  resume            Resume   @relation(fields: [resumeId], references: [id])
+  score             Int      @default(0)
+  riskLevel         String   @default("Unknown")
+  findings          String   @default("[]")
+  authenticityScore Int?
+  atsScore          Int?
+  recommendations   String?
+  fakeFlags         String   @default("[]")
+  atsChecks         String   @default("[]")
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  resumeId  String
+  resume    Resume   @relation(fields: [resumeId], references: [id])
+  pdfUrl    String
+}
