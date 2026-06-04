@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
-import { execSync } from 'child_process';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
@@ -24,18 +23,22 @@ try {
   }
 }
 
+const CREATE_TABLES = [
+  `CREATE TABLE IF NOT EXISTS "User" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "email" TEXT NOT NULL UNIQUE, "passwordHash" TEXT NOT NULL, "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
+  `CREATE TABLE IF NOT EXISTS "Resume" ("id" TEXT NOT NULL PRIMARY KEY, "userId" TEXT NOT NULL, "fileName" TEXT NOT NULL, "fileUrl" TEXT NOT NULL, "score" INTEGER, "riskLevel" TEXT, "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY ("userId") REFERENCES "User"("id"))`,
+  `CREATE TABLE IF NOT EXISTS "Job" ("id" TEXT NOT NULL PRIMARY KEY, "title" TEXT NOT NULL, "description" TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS "Analysis" ("id" TEXT NOT NULL PRIMARY KEY, "resumeId" TEXT NOT NULL, "score" INTEGER NOT NULL DEFAULT 0, "riskLevel" TEXT NOT NULL DEFAULT 'Unknown', "findings" TEXT NOT NULL DEFAULT '[]', "authenticityScore" INTEGER, "atsScore" INTEGER, "recommendations" TEXT, "fakeFlags" TEXT NOT NULL DEFAULT '[]', "atsChecks" TEXT NOT NULL DEFAULT '[]', FOREIGN KEY ("resumeId") REFERENCES "Resume"("id"))`,
+  `CREATE TABLE IF NOT EXISTS "Report" ("id" TEXT NOT NULL PRIMARY KEY, "resumeId" TEXT NOT NULL, "pdfUrl" TEXT NOT NULL, FOREIGN KEY ("resumeId") REFERENCES "Resume"("id"))`,
+];
+
 export async function syncSchema() {
-  if (!prisma || process.env.VERCEL !== '1') return;
-  try {
-    const rows: any = await prisma.$queryRawUnsafe("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='User'");
-    const cnt = rows?.[0]?.cnt;
-    if (cnt && Number(cnt) > 0) return;
-  } catch {}
-  try {
-    const prismaCli = path.resolve(__dirname, '../../node_modules/prisma/build/index.js');
-    execSync(`node "${prismaCli}" db push --skip-generate --accept-data-loss`, { stdio: 'pipe', cwd: path.resolve(__dirname, '../..'), timeout: 30000 });
-  } catch (e: any) {
-    console.error('prisma db push failed:', e.message);
+  if (!prisma) return;
+  for (const sql of CREATE_TABLES) {
+    try {
+      await prisma.$executeRawUnsafe(sql);
+    } catch (e: any) {
+      console.error('syncSchema error:', e.message);
+    }
   }
 }
 
