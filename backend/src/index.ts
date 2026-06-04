@@ -11,7 +11,7 @@ app.get('/health', (_req, res) => {
   let resolveResult = '';
   let errorMsg = '';
   try {
-    const resolved = require.resolve('./routes/auth.routes');
+    const resolved = require.resolve('./routes/auth.routes.js');
     resolveResult = resolved;
     requireWorks = true;
   } catch (e: any) {
@@ -40,7 +40,7 @@ app.get('/init', async (_req, res) => {
     'analytics'
   ];
   for (const name of modules) {
-    const path = `./routes/${name}.routes`;
+    const path = `./routes/${name}.routes.js`;
     try {
       const mod = require(path);
       results.push({ name, loaded: true, hasDefault: !!mod.default });
@@ -53,7 +53,7 @@ app.get('/init', async (_req, res) => {
 
 app.get('/test-static-import', async (_req, res) => {
   try {
-    const mod = await import('./routes/auth.routes');
+    const mod = await import('./routes/auth.routes.js');
     res.json({ ok: true, hasDefault: !!mod.default });
   } catch (e: any) {
     res.json({ ok: false, error: e.message, stack: e.stack?.split('\n').slice(0, 5).join('\n') });
