@@ -58,7 +58,7 @@ router.post('/:resumeId', authMiddleware, async (req: AuthRequest, res) => {
         const result = await mammoth.extractRawText({ buffer: dataBuffer });
         rawText = result.value;
       } else {
-        const parser = new PDFParse({ data: dataBuffer });
+        const parser = new (PDFParse as any)({ data: dataBuffer });
         await parser.load();
         const result = await parser.getText();
         rawText = result.text || (result.pages || []).map((p: any) => p.text || '').join('\n');

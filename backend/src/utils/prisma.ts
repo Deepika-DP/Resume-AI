@@ -31,4 +31,4 @@ if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = createPrisma();
 }
 
-export default globalForPrisma.prisma;
+export default globalForPrisma.prisma!;
