@@ -11,12 +11,12 @@ app.get('/health', (_req, res) => {
 });
 
 async function initModules() {
-  try { const m = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); } catch (e: any) { console.error('auth:', e.message); }
-  try { const m = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); } catch (e: any) { console.error('resume:', e.message); }
-  try { const m = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); } catch (e: any) { console.error('analysis:', e.message); }
-  try { const m = await import('./routes/job.routes.js'); if (m?.default) app.use('/jobs', m.default); } catch (e: any) { console.error('job:', e.message); }
-  try { const m = await import('./routes/report.routes.js'); if (m?.default) app.use('/reports', m.default); } catch (e: any) { console.error('report:', e.message); }
-  try { const m = await import('./routes/analytics.routes.js'); if (m?.default) app.use('/analytics', m.default); } catch (e: any) { console.error('analytics:', e.message); }
+  try { const m: any = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); } catch (e: any) { console.error('auth:', e.message); }
+  try { const m: any = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); } catch (e: any) { console.error('resume:', e.message); }
+  try { const m: any = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); } catch (e: any) { console.error('analysis:', e.message); }
+  try { const m: any = await import('./routes/job.routes.js'); if (m?.default) app.use('/jobs', m.default); } catch (e: any) { console.error('job:', e.message); }
+  try { const m: any = await import('./routes/report.routes.js'); if (m?.default) app.use('/reports', m.default); } catch (e: any) { console.error('report:', e.message); }
+  try { const m: any = await import('./routes/analytics.routes.js'); if (m?.default) app.use('/analytics', m.default); } catch (e: any) { console.error('analytics:', e.message); }
 }
 
 let initPromise: Promise<void> | null = initModules().catch(e => console.error('initModules:', e.message));
