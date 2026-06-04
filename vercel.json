@@ -7,9 +7,7 @@
         },
         "backend": {
             "root": "backend",
-            "routePrefix": "/_/backend",
-            "framework": "express",
-            "entrypoint": "src/index.ts"
+            "routePrefix": "/_/backend"
         }
     }
 }
