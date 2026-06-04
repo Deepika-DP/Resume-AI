@@ -29,7 +29,7 @@ async function initModules() {
   }
 }
 
-let initPromise = initModules().catch(e => console.error('initModules failed:', e));
+let initPromise: Promise<void> | null = initModules().catch(e => console.error('initModules failed:', e));
 
 app.use((_req, _res, next) => {
   if (initPromise) {
