@@ -12,7 +12,7 @@ router.get('/dashboard', authMiddleware, async (req: AuthRequest, res) => {
       where: { userId, score: { not: null } }
     });
     const averageScore = resumes.length > 0
-      ? Math.round(resumes.reduce((acc, r) => acc + (r.score || 0), 0) / resumes.length)
+      ? Math.round(resumes.reduce((acc: number, r: any) => acc + (r.score || 0), 0) / resumes.length)
       : 0;
 
     const highRiskCandidates = await prisma.resume.count({

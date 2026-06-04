@@ -5,6 +5,7 @@ import fs from 'fs';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import prisma from '../utils/prisma';
 
+const router = Router();
 const DOWNLOADS_DIR = process.env.VERCEL ? '/tmp/downloads' : path.resolve(__dirname, '../../downloads');
 
 if (!fs.existsSync(DOWNLOADS_DIR)) {

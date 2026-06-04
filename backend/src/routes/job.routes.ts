@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import path from 'path';
 import fs from 'fs';
+import mammoth from 'mammoth';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import prisma from '../utils/prisma';
+import { tryOcrFallback } from '../utils/ocr';
+import PDFParse from 'pdf-parse';
 
 const router = Router();
 
