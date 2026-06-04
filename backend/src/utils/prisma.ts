@@ -14,12 +14,13 @@ try {
   }
   prisma = globalForPrisma.prisma;
 } catch (e) {
-  console.error('Failed to create PrismaClient:', e);
-  prisma = new PrismaClient();
+  console.error('Failed to create first PrismaClient:', e);
+  try {
+    prisma = new PrismaClient();
+  } catch (e2) {
+    console.error('Failed to create fallback PrismaClient:', e2);
+    prisma = null as any;
+  }
 }
 
 export default prisma;
-
-export function getPrisma(): PrismaClient {
-  return prisma;
-}
