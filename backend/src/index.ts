@@ -13,23 +13,12 @@ app.get('/health', (_req, res) => {
 
 async function initModules() {
   await syncSchema();
-  const mods: [string, string][] = [
-    ['./routes/auth.routes.js', '/auth'],
-    ['./routes/resume.routes.js', '/resumes'],
-    ['./routes/analysis.routes.js', '/analysis'],
-    ['./routes/job.routes.js', '/jobs'],
-    ['./routes/report.routes.js', '/reports'],
-    ['./routes/analytics.routes.js', '/analytics'],
-  ];
-  for (const [p, mp] of mods) {
-    try {
-      const mod: any = await import(p);
-      if (mod?.default) app.use(mp, mod.default);
-      console.log(`✓ ${mp}`);
-    } catch (e: any) {
-      console.error(`✗ ${mp}:`, e?.message?.split('\n')[0]);
-    }
-  }
+  try { const m = await import('./routes/auth.routes.js'); if (m?.default) app.use('/auth', m.default); console.log('✓ auth'); } catch (e: any) { console.error('✗ auth:', e?.message?.split('\n')[0]); }
+  try { const m = await import('./routes/resume.routes.js'); if (m?.default) app.use('/resumes', m.default); console.log('✓ resume'); } catch (e: any) { console.error('✗ resume:', e?.message?.split('\n')[0]); }
+  try { const m = await import('./routes/analysis.routes.js'); if (m?.default) app.use('/analysis', m.default); console.log('✓ analysis'); } catch (e: any) { console.error('✗ analysis:', e?.message?.split('\n')[0]); }
+  try { const m = await import('./routes/job.routes.js'); if (m?.default) app.use('/jobs', m.default); console.log('✓ job'); } catch (e: any) { console.error('✗ job:', e?.message?.split('\n')[0]); }
+  try { const m = await import('./routes/report.routes.js'); if (m?.default) app.use('/reports', m.default); console.log('✓ report'); } catch (e: any) { console.error('✗ report:', e?.message?.split('\n')[0]); }
+  try { const m = await import('./routes/analytics.routes.js'); if (m?.default) app.use('/analytics', m.default); console.log('✓ analytics'); } catch (e: any) { console.error('✗ analytics:', e?.message?.split('\n')[0]); }
 }
 
 let initPromise: Promise<void> | null = initModules().catch(e => console.error('initModules:', e.message));

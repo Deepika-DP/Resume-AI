@@ -1,11 +1,9 @@
 import { Router } from 'express';
 import path from 'path';
 import fs from 'fs';
-import mammoth from 'mammoth';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import prisma from '../utils/prisma';
 import { tryOcrFallback } from '../utils/ocr';
-import PDFParse from 'pdf-parse';
 
 const router = Router();
 
@@ -40,9 +38,11 @@ router.post('/match/:resumeId', authMiddleware, async (req: AuthRequest, res) =>
     try {
       const dataBuffer = fs.readFileSync(resume.fileUrl);
       if (ext === '.docx') {
+        const mammoth = await import('mammoth');
         const result = await mammoth.extractRawText({ buffer: dataBuffer });
         rawText = result.value;
       } else {
+        const PDFParse = await import('pdf-parse');
         const parser = new (PDFParse as any)({ data: dataBuffer });
         await parser.load();
         const result = await parser.getText();
