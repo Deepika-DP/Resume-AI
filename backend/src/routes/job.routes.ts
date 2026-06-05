@@ -42,6 +42,10 @@ router.post('/match/:resumeId', authMiddleware, async (req: AuthRequest, res) =>
         const result = await (extractRawText || mammoth.extractRawText)({ buffer: dataBuffer });
         rawText = result.value;
       } else {
+        if (!(globalThis as any).DOMMatrix) {
+          const { DOMMatrix } = await import('@napi-rs/canvas') as any;
+          (globalThis as any).DOMMatrix = DOMMatrix;
+        }
         const { PDFParse } = await import('pdf-parse') as any;
         const parser = new PDFParse({ data: dataBuffer });
         await parser.load();
