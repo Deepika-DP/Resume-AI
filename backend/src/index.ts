@@ -20,14 +20,15 @@ function imp(path: string, mountPoint: string) {
 
 async function initModules() {
   await syncSchema();
-  for (const [path, mount] of [
+  const modules: [string, string][] = [
     ['./routes/auth.routes.js', '/auth'],
     ['./routes/resume.routes.js', '/resumes'],
     ['./routes/analysis.routes.js', '/analysis'],
     ['./routes/job.routes.js', '/jobs'],
     ['./routes/report.routes.js', '/reports'],
     ['./routes/analytics.routes.js', '/analytics'],
-  ]) {
+  ];
+  for (const [path, mount] of modules) {
     try {
       const r = await imp(path, mount);
       console.log(`✓ ${mount}`);
