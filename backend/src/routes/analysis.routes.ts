@@ -61,16 +61,27 @@ router.post('/:resumeId', authMiddleware, async (req: AuthRequest, res) => {
         const result = await (extractRawText || mammoth.extractRawText)({ buffer: dataBuffer });
         rawText = result.value;
       } else {
-        if (!(globalThis as any).DOMMatrix) {
-          const { DOMMatrix } = await import('@napi-rs/canvas') as any;
-          (globalThis as any).DOMMatrix = DOMMatrix;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+        const pdfjs = require('pdfjs-dist') as any;
+        // Preload worker so eval("require")(getWorkerSrc()) inside getDocument finds the module
+        (globalThis as any).pdfjsWorker = require('pdfjs-dist/build/pdf.worker.js');
+        const dataArr = new Uint8Array(dataBuffer.buffer, dataBuffer.byteOffset, dataBuffer.byteLength);
+        if (dataArr.length < 10 || dataArr[0] !== 37) {
+          return res.status(400).json({ error: `Parse error: file too small or not PDF (${dataArr.length} bytes)` });
         }
-        const { PDFParse } = await import('pdf-parse') as any;
-        const parser = new PDFParse({ data: dataBuffer });
-        await parser.load();
-        const result = await parser.getText();
-        rawText = result.text || (result.pages || []).map((p: any) => p.text || '').join('\n');
-        await parser.destroy();
+        let doc: any;
+        try {
+          doc = await pdfjs.getDocument({ data: dataArr }).promise;
+        } catch (pdfErr: any) {
+          return res.status(400).json({ error: `PDF parse error: ${pdfErr.message}`, debug: `size=${dataArr.length} firstByte=${dataArr[0]}` });
+        }
+        const parts: string[] = [];
+        for (let i = 1; i <= doc.numPages; i++) {
+          const page = await doc.getPage(i);
+          const tc = await page.getTextContent();
+          parts.push(tc.items.map((t: any) => t.str).join(' '));
+        }
+        rawText = parts.join('\n');
       }
       rawText = await tryOcrFallback(dataBuffer, rawText);
     } catch (e: any) {
