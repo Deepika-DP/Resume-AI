@@ -38,12 +38,14 @@ router.post('/match/:resumeId', authMiddleware, async (req: AuthRequest, res) =>
     try {
       const dataBuffer = fs.readFileSync(resume.fileUrl);
       if (ext === '.docx') {
-        const mammoth = await import('mammoth');
+        const mammothMod: any = await import('mammoth');
+        const mammoth = mammothMod.default || mammothMod;
         const result = await mammoth.extractRawText({ buffer: dataBuffer });
         rawText = result.value;
       } else {
-        const PDFParse = await import('pdf-parse');
-        const parser = new (PDFParse as any)({ data: dataBuffer });
+        const pdfMod: any = await import('pdf-parse');
+        const PDFParse = pdfMod.default || pdfMod;
+        const parser = new PDFParse({ data: dataBuffer });
         await parser.load();
         const result = await parser.getText();
         rawText = result.text || (result.pages || []).map((p: any) => p.text || '').join('\n');
