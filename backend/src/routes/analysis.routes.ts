@@ -57,13 +57,11 @@ router.post('/:resumeId', authMiddleware, async (req: AuthRequest, res) => {
         return res.status(400).json({ error: `Resume file not found on server (uploaded on a different instance, Vercel ephemeral storage). ${e2.message}` });
       }
       if (ext === '.docx') {
-        const mammothMod: any = await import('mammoth');
-        const mammoth = mammothMod.default || mammothMod;
-        const result = await mammoth.extractRawText({ buffer: dataBuffer });
+        const { default: mammoth, extractRawText } = await import('mammoth') as any;
+        const result = await (extractRawText || mammoth.extractRawText)({ buffer: dataBuffer });
         rawText = result.value;
       } else {
-        const pdfMod: any = await import('pdf-parse');
-        const PDFParse = pdfMod.default || pdfMod;
+        const { PDFParse } = await import('pdf-parse') as any;
         const parser = new PDFParse({ data: dataBuffer });
         await parser.load();
         const result = await parser.getText();
