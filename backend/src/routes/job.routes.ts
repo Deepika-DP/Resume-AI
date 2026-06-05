@@ -50,8 +50,9 @@ router.post('/match/:resumeId', authMiddleware, async (req: AuthRequest, res) =>
         await parser.destroy();
       }
       rawText = await tryOcrFallback(dataBuffer, rawText);
-    } catch (e) {
-      return res.status(400).json({ error: 'Could not parse resume file.' });
+    } catch (e: any) {
+      console.error('Job parse error:', e?.message);
+      return res.status(400).json({ error: `Parse error: ${e?.message || 'unknown'}` });
     }
 
     const resumeText = rawText.toLowerCase();

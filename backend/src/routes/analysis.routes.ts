@@ -69,9 +69,9 @@ router.post('/:resumeId', authMiddleware, async (req: AuthRequest, res) => {
         await parser.destroy();
       }
       rawText = await tryOcrFallback(dataBuffer, rawText);
-    } catch (e) {
-      console.error('File parse error:', (e as Error).message);
-      return res.status(400).json({ error: 'Could not parse resume file. Supported formats: PDF, DOCX.' });
+    } catch (e: any) {
+      console.error('File parse error:', e?.message, e?.stack?.split('\n').slice(0,3).join(' | '));
+      return res.status(400).json({ error: `Parse error: ${e?.message || 'unknown'}` });
     }
 
     const text = rawText.toLowerCase();
