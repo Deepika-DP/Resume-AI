@@ -11,16 +11,9 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, vercel: !!process.env.VERCEL, node: process.version });
 });
 
-function imp(path: string, mountPoint: string) {
-  return Promise.race([
-    import(path).then(m => { if (m?.default) app.use(mountPoint, m.default); return 'ok'; }),
-    new Promise<string>((_, reject) => setTimeout(() => reject(new Error(`TIMEOUT importing ${path}`)), 8000))
-  ]);
-}
-
 async function initModules() {
   await syncSchema();
-  const modules: [string, string][] = [
+  const mods: [string, string][] = [
     ['./routes/auth.routes.js', '/auth'],
     ['./routes/resume.routes.js', '/resumes'],
     ['./routes/analysis.routes.js', '/analysis'],
@@ -28,12 +21,13 @@ async function initModules() {
     ['./routes/report.routes.js', '/reports'],
     ['./routes/analytics.routes.js', '/analytics'],
   ];
-  for (const [path, mount] of modules) {
+  for (const [p, mp] of mods) {
     try {
-      const r = await imp(path, mount);
-      console.log(`✓ ${mount}`);
+      const mod: any = await import(p);
+      if (mod?.default) app.use(mp, mod.default);
+      console.log(`✓ ${mp}`);
     } catch (e: any) {
-      console.error(`✗ ${mount}:`, e?.message);
+      console.error(`✗ ${mp}:`, e?.message?.split('\n')[0]);
     }
   }
 }
